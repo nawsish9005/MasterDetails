@@ -10,19 +10,51 @@ namespace InvoiceInfo.Controllers
     public class InvoiceController : Controller
     {
         private readonly ApplicationDbContext _context;
+
+        public InvoiceController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpPost("create-invoice")]
         public async Task<IActionResult> CreateInvoice([FromBody] Invoice invoice)
         {
-            if (invoice == null || invoice.InvoiceDetails == null || !invoice.InvoiceDetails.Any())
+            if (invoice == null)
+                return BadRequest("Invoice object is null.");
+
+            if (string.IsNullOrWhiteSpace(invoice.CustomerName))
+                return BadRequest("CustomerName is required.");
+
+            if (invoice.TotalAmount <= 0)
+                return BadRequest("TotalAmount must be greater than zero.");
+
+            if (invoice.InvoiceDetails == null || !invoice.InvoiceDetails.Any())
+                return BadRequest("Invoice must have at least one product.");
+
+            try
             {
-                return BadRequest("Invalid invoice data.");
+                foreach (var detail in invoice.InvoiceDetails)
+                {
+                    detail.InvoiceId = invoice.Id;
+                }
+                _context.Invoices.Add(invoice);
+                await _context.SaveChangesAsync();
+
+                return Ok(invoice);
             }
-
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
-
-            return Ok(invoice);
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
+
+
+
+
+
+
+
+
         [HttpGet("get-invoices")]
         public async Task<IActionResult> GetInvoices()
         {
