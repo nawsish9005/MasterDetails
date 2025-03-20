@@ -1,0 +1,85 @@
+<div class="container">
+    <h2>Invoice Entry</h2>
+  
+    <form [formGroup]="invoiceForm" (ngSubmit)="submitInvoice()">
+      <!-- Customer Name -->
+      <div class="form-group">
+        <label for="customerName">Customer Name:</label>
+        <input
+          type="text"
+          id="customerName"
+          class="form-control"
+          formControlName="customerName"
+          required
+        />
+      </div>
+  
+      <!-- Invoice Details Table -->
+      <h3>Invoice Details</h3>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody formArrayName="invoiceDetails">
+          <tr *ngFor="let product of invoiceDetails.controls; let i = index" [formGroupName]="i">
+            <td>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="productName"
+                required
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="quantity"
+                required
+                min="1"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="price"
+                required
+                min="0.01"
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-danger" (click)="removeProduct(i)">Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <!-- Button to add new product -->
+      <button type="button" class="btn btn-primary" (click)="addProduct()">+ Add Product</button>
+  
+      <!-- Total Amount -->
+      <div class="form-group mt-3">
+        <label for="totalAmount">Total Amount:</label>
+        <input
+          type="number"
+          id="totalAmount"
+          class="form-control"
+          formControlName="totalAmount"
+          required
+          readonly
+        />
+      </div>
+  
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-success" [disabled]="invoiceForm.invalid">
+        Submit Invoice
+      </button>
+    </form>
+  </div>
+  
